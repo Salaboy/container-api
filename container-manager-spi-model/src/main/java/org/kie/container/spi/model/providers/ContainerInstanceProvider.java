@@ -5,10 +5,21 @@
  */
 package org.kie.container.spi.model.providers;
 
+import java.util.List;
+import org.kie.container.spi.model.Container;
+import org.kie.container.spi.model.ContainerConfiguration;
+import org.kie.container.spi.model.ContainerInstance;
+
 /**
  *
  * @author salaboy
+ *  This class provides the basic for a Provider to create and destroy instances 
  */
 public interface ContainerInstanceProvider {
-    
+    public Container create(String name, ContainerConfiguration conf);
+    public List<Container> getAll();
+    public ContainerInstance createInstance(Container c) throws Exception;
+    public List<ContainerInstance> getAllInstances();
+    public void destroyInstance();
+   
 }

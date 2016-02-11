@@ -10,6 +10,7 @@ import java.util.Map;
 /**
  *
  * @author salaboy
+ * This class represent all the configuration needed for creating a container instance
  */
 public interface ContainerConfiguration {
     public Map<String, String> getProperties();

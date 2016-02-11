@@ -1,14 +1,12 @@
 package org.kie.container.spi.model;
 
-
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 /**
  *
  * @author salaboy
+ * 
+ * This class represents a Container definition. 
+ * For Docker it represents a docker image name and configuration
+ * For a WAR application it represents the application itself and its information
  */
 public interface Container {
 

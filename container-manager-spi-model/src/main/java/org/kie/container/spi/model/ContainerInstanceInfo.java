@@ -8,14 +8,9 @@ package org.kie.container.spi.model;
 /**
  *
  * @author salaboy
+ * This class represent the Container instance information, which might describe how to 
+ * talk with the application/image instance and which features are provided
  */
-public interface ManagedContainerInstance extends ContainerInstance {
-
-    public void deployApplication();
-
-    public void undeployApplication();
-
-    public void startApplication();
-
-    public void stopApplication();
+public interface ContainerInstanceInfo {
+    
 }
