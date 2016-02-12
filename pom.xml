@@ -4,13 +4,16 @@
     <groupId>org.kie</groupId>
     <artifactId>container-manager-spi</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <name>Container Manager :: SPI (Parent)</name>
     <packaging>pom</packaging>
     <modules>
-        <module>container-docker-provider</module>
         <module>container-manager-spi-model</module>
+        <module>container-manager-services</module>
+        <module>container-manager-docker-provider</module>
     </modules>
+    
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-    <name>container-manager-spi</name>
+    
 </project>

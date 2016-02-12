@@ -3,13 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.drools.docker.machine;
+package org.kie.container.docker.provider;
 
 import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerCertificateException;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.DockerException;
-import com.spotify.docker.client.LogStream;
 import com.spotify.docker.client.messages.ContainerConfig;
 import com.spotify.docker.client.messages.ContainerCreation;
 import com.spotify.docker.client.messages.ContainerInfo;
@@ -19,43 +18,68 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.kie.container.docker.provider.DockerContainer;
-import org.kie.container.docker.provider.DockerContainerInstance;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Instance;
+import javax.inject.Inject;
 import org.kie.container.spi.model.Container;
 import org.kie.container.spi.model.ContainerConfiguration;
 import org.kie.container.spi.model.ContainerInstance;
-import org.kie.container.spi.model.providers.ContainerManager;
+import org.kie.container.spi.model.providers.ContainerInstanceProvider;
 
 
 /**
  *
  * @author salaboy
  */
-public class DockerContainerProvider implements ContainerManager {
+@ApplicationScoped
+public class DockerContainerInstanceProvider implements ContainerInstanceProvider {
 
     private Map<String, Container> containers = new HashMap<>();
     private Map<String, ContainerInstance> containerInstances = new HashMap<>();
+    private DockerClient docker;
+    
+    @Inject
+    private Instance<DockerContainerInstance> instance;
+
+    public DockerContainerInstanceProvider() {
+        try {
+            docker = DefaultDockerClient.fromEnv().build();
+        } catch (DockerCertificateException ex) {
+            Logger.getLogger(DockerContainerInstanceProvider.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public DockerClient getDocker() {
+        return docker;
+    }
 
     @Override
-    public Container createContainer(String name, ContainerConfiguration conf) {
+    public ContainerInstance getInstanceById(String id){
+        return containerInstances.get(id);
+    }
+    
+    
+    @Override
+    public Container create(String name, ContainerConfiguration conf) {
         Container m = new DockerContainer(name, conf);
         containers.put(name, m);
         return m;
     }
 
     @Override
-    public List<Container> getAllContainers() {
+    public List<Container> getAll() {
         return new ArrayList<>(containers.values());
     }
 
     @Override
-    public ContainerInstance createContainerInstance(Container c) throws DockerCertificateException, DockerException, InterruptedException {
+    public ContainerInstance createInstance(Container c) throws DockerCertificateException, DockerException, InterruptedException {
 
-        ContainerInstance mi = new DockerContainerInstance();
+        ContainerInstance ci = instance.get();
+        ci.getInfo().setName(c.getConfiguration().getProperty("name"));
         // Create a client based on DOCKER_HOST and DOCKER_CERT_PATH env vars
-        final DockerClient docker;
-
-        docker = DefaultDockerClient.fromEnv().build();
+        
 
         // Pull an image
        // docker.pull(m.getConfiguration().getProperty("name"));
@@ -85,18 +109,19 @@ public class DockerContainerProvider implements ContainerManager {
 //                .cmd("sh", "-c", "while :; do sleep 1; done")
                 .build();
 
-        final ContainerCreation creation;
-        
-            creation = docker.createContainer(containerConfig);
+        final ContainerCreation creation = docker.createContainer(containerConfig);
        
         final String id = creation.id();
         System.out.println(">>> ID: "+id);
 // Inspect container
         final ContainerInfo info = docker.inspectContainer(id);
         System.out.println(">>> INFO: "+info);
-
+        String shortId = id.substring(0, 12);
+        ci.getInfo().setId(shortId); // get Short Id
+        containerInstances.put(shortId, ci);
+        
 // Start container
-        docker.startContainer(id);
+//        docker.startContainer(id);
 
 // Exec command inside running container with attached STDOUT and STDERR
 //        final String[] command = {"bash", "-c", "ls"};
@@ -109,12 +134,26 @@ public class DockerContainerProvider implements ContainerManager {
 //
 //// Remove container
 //        docker.removeContainer(id);
-        return mi;
+        
+        
+        return ci;
+    }
+
+
+    @Override
+    public List<ContainerInstance> getAllInstances() {
+        return new ArrayList<>(containerInstances.values());
     }
 
     @Override
-    public List<ContainerInstance> getAllContainerInstances() {
-        return new ArrayList<>(containerInstances.values());
+    public void removeInstance(String containerId) {
+        try {
+            docker.removeContainer(containerId);
+        } catch (DockerException ex) {
+            Logger.getLogger(DockerContainerInstanceProvider.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(DockerContainerInstanceProvider.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
 }

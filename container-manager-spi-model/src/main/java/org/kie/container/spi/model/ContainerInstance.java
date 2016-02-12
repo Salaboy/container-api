@@ -8,13 +8,17 @@ package org.kie.container.spi.model;
 /**
  *
  * @author salaboy
- * 
- *  This class represent a Docker Image running or a WAR deployed into a server
- * 
+ *
+ * This class represent a Docker Image running or a WAR deployed into a server
+ *
  */
 public interface ContainerInstance {
-   
-   void start();
-   void stop();
-   ContainerInstanceInfo getInfo();
+
+    public void start();
+
+    public void stop();
+    
+    public void restart();
+
+    public ContainerInstanceInfo getInfo();
 }

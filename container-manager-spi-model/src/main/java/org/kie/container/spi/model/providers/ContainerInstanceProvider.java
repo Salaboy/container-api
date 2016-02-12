@@ -20,6 +20,8 @@ public interface ContainerInstanceProvider {
     public List<Container> getAll();
     public ContainerInstance createInstance(Container c) throws Exception;
     public List<ContainerInstance> getAllInstances();
-    public void destroyInstance();
+    public void removeInstance(String id);
+    public ContainerInstance getInstanceById(String id);
+    
    
 }

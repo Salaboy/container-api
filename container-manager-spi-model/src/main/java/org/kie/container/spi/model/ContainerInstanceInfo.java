@@ -12,5 +12,8 @@ package org.kie.container.spi.model;
  * talk with the application/image instance and which features are provided
  */
 public interface ContainerInstanceInfo {
-    
+    String getId();
+    void setId(String id);
+    String getName();
+    void setName(String name);
 }
