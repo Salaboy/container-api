@@ -26,7 +26,7 @@ import javax.inject.Inject;
 import org.kie.container.spi.model.Container;
 import org.kie.container.spi.model.ContainerConfiguration;
 import org.kie.container.spi.model.ContainerInstance;
-import org.kie.container.spi.model.providers.ContainerInstanceProvider;
+import org.kie.container.spi.model.providers.BaseContainerInstanceProvider;
 
 
 /**
@@ -34,8 +34,8 @@ import org.kie.container.spi.model.providers.ContainerInstanceProvider;
  * @author salaboy
  */
 @ApplicationScoped
-public class DockerContainerInstanceProvider implements ContainerInstanceProvider {
-
+@DockerInstanceProvider
+public class DockerContainerInstanceProvider extends BaseContainerInstanceProvider {
     private Map<String, Container> containers = new HashMap<>();
     private Map<String, ContainerInstance> containerInstances = new HashMap<>();
     private DockerClient docker;
@@ -44,6 +44,8 @@ public class DockerContainerInstanceProvider implements ContainerInstanceProvide
     private Instance<DockerContainerInstance> instance;
 
     public DockerContainerInstanceProvider() {
+        super("docker");
+        System.out.println(">>> Docker Provider Created... " + this.hashCode());
         try {
             docker = DefaultDockerClient.fromEnv().build();
         } catch (DockerCertificateException ex) {
@@ -77,7 +79,7 @@ public class DockerContainerInstanceProvider implements ContainerInstanceProvide
     public ContainerInstance createInstance(Container c) throws DockerCertificateException, DockerException, InterruptedException {
 
         ContainerInstance ci = instance.get();
-        ci.getInfo().setName(c.getConfiguration().getProperty("name"));
+        ci.getInfo().setName(c.getConfiguration().getProperties().get("name"));
         // Create a client based on DOCKER_HOST and DOCKER_CERT_PATH env vars
         
 
@@ -105,7 +107,7 @@ public class DockerContainerInstanceProvider implements ContainerInstanceProvide
 // Create container with exposed ports
         final ContainerConfig containerConfig = ContainerConfig.builder()
                 .hostConfig(hostConfig)
-                .image(c.getConfiguration().getProperty("name")).exposedPorts(ports)
+                .image(c.getConfiguration().getProperties().get("name")).exposedPorts(ports)
 //                .cmd("sh", "-c", "while :; do sleep 1; done")
                 .build();
 

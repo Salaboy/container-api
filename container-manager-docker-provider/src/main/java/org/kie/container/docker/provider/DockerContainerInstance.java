@@ -13,19 +13,20 @@ import org.kie.container.spi.model.ContainerInstance;
 import org.kie.container.spi.model.ContainerInstanceInfo;
 import org.kie.container.spi.model.base.BaseContainerInstanceInfo;
 
-
-
 /**
  *
  * @author salaboy
  */
-public class DockerContainerInstance implements ContainerInstance{
-    @Inject
+public class DockerContainerInstance implements ContainerInstance {
+
     private DockerContainerInstanceProvider instanceProvider;
-    
+
     private ContainerInstanceInfo info = new BaseContainerInstanceInfo();
-    public DockerContainerInstance() {
-        
+
+    @Inject
+    public DockerContainerInstance(@DockerInstanceProvider DockerContainerInstanceProvider instanceProvider) {
+        this.instanceProvider = instanceProvider;
+
     }
 
     @Override
@@ -65,5 +66,5 @@ public class DockerContainerInstance implements ContainerInstance{
             Logger.getLogger(DockerContainerInstance.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
 }

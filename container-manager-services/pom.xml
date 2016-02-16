@@ -35,7 +35,11 @@
             <artifactId>container-manager-docker-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
+        <dependency>
+            <groupId>org.kie</groupId>
+            <artifactId>container-manager-was-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>

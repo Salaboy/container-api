@@ -14,6 +14,5 @@ import java.util.Map;
  */
 public interface ContainerConfiguration {
     public Map<String, String> getProperties();
-    public String getProperty(String name);
-    public void setProperty(String name, String value);
+    public void setProperties(Map<String, String> props);
 }

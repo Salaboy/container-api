@@ -32,6 +32,7 @@ public class App {
         JAXRSArchive deployment = ShrinkWrap.create(JAXRSArchive.class);
 //        deployment.as(Secured.class);
         deployment.setContextRoot("/api");
+        deployment.addModule("sun.jdk");
         deployment.addPackage("org.drools.runtime.agent.model");
         deployment.addResource(ContainerManagerService.class);
         deployment.addResource(ContainerManagerServiceImpl.class);

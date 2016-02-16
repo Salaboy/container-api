@@ -22,6 +22,6 @@ public interface ContainerInstanceProvider {
     public List<ContainerInstance> getAllInstances();
     public void removeInstance(String id);
     public ContainerInstance getInstanceById(String id);
-    
+    public String getProviderName();
    
 }

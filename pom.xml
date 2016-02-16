@@ -10,6 +10,7 @@
         <module>container-manager-spi-model</module>
         <module>container-manager-services</module>
         <module>container-manager-docker-provider</module>
+        <module>container-manager-was-provider</module>
     </modules>
     
     <properties>
