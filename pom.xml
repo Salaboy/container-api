@@ -11,6 +11,9 @@
         <module>container-manager-services</module>
         <module>container-manager-docker-provider</module>
         <module>container-manager-was-provider</module>
+        <!-- utilities --> 
+        <module>was-util-core</module>
+
     </modules>
     
     <properties>
