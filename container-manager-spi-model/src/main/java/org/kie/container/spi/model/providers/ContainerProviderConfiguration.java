@@ -5,14 +5,15 @@
  */
 package org.kie.container.spi.model.providers;
 
-import java.util.List;
+import java.util.Map;
 
 /**
  *
  * @author salaboy
- * This class allows u s to get hold of all the registered providers in our system
  */
-public interface ContainerInstanceProviderManager {
-    public List<ContainerInstanceProviderManager> getProviders();
-    public void registerProvider();
+public interface ContainerProviderConfiguration {
+
+    public Map<String, String> getProperties();
+
+    public void setProperties(Map<String, String> props);
 }

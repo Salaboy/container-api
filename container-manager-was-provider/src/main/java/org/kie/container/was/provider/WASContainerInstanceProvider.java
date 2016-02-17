@@ -10,70 +10,55 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import org.drools.was.util.core.WASContainerManager;
 import org.drools.was.util.core.listeners.BaseNotificationListener;
 import org.kie.container.spi.model.Container;
-import org.kie.container.spi.model.ContainerConfiguration;
 import org.kie.container.spi.model.ContainerInstance;
-import org.kie.container.spi.model.providers.BaseContainerInstanceProvider;
+import org.kie.container.spi.model.providers.ContainerProviderConfiguration;
+import org.kie.container.spi.model.providers.base.BaseContainerInstanceProvider;
 
 /**
  *
  * @author salaboy
  */
-@ApplicationScoped
-@WASInstanceProvider
 public class WASContainerInstanceProvider extends BaseContainerInstanceProvider {
 
-    private Map<String, Container> containers = new HashMap<>();
     private Map<String, ContainerInstance> containerInstances = new HashMap<>();
 
-    WASContainerManager container = new WASContainerManager("10.211.55.3", "8880");
-    
+    private WASContainerManager containerClient;
+
     @Inject
     private Instance<WASContainerInstance> instance;
+    
 
     public WASContainerInstanceProvider() {
-        super("was");
-        System.out.println(">>> WAS Provider Created... "+this.hashCode());
-        
-        container.connect();
-        
-    }
+        super("WAS Client Provider");
+        System.out.println(">>> WAS Client Provider Created... " + this.hashCode());
 
-    public WASContainerManager getWASClient() {
-        return container;
     }
 
     @Override
-    public ContainerInstance getInstanceById(String id) {
-        return containerInstances.get(id);
+    public void configure(ContainerProviderConfiguration config) {
+        this.config = config;
+        String host = config.getProperties().get("host");
+        String port = config.getProperties().get("port");
+        containerClient = new WASContainerManager(host, port);
+        containerClient.connect();
     }
 
-    @Override
-    public Container create(String name, ContainerConfiguration conf) {
-        Container m = new WASContainer(name, conf);
-        containers.put(name, m);
-        return m;
-    }
-
-    @Override
-    public List<Container> getAll() {
-        return new ArrayList<>(containers.values());
-    }
-
+    
     @Override
     public ContainerInstance createInstance(Container c) {
         ContainerInstance ci = instance.get();
+        ci.setProvider(this);
         String appName = c.getConfiguration().getProperties().get("name");
         ci.getInfo().setName(appName);
         String earPath = c.getConfiguration().getProperties().get("earPath");
         String target = c.getConfiguration().getProperties().get("target");
-        container.addNotificationListener(new BaseNotificationListener( "Install: " + appName, AppNotification.INSTALL));
-        container.deployApp(earPath, appName, target);
+        containerClient.addNotificationListener(new BaseNotificationListener("Install: " + appName, AppNotification.INSTALL));
+        containerClient.deployApp(earPath, appName, target);
 
         ci.getInfo().setId(appName); //use the app name as ID :(
         containerInstances.put(appName, ci);
@@ -88,7 +73,15 @@ public class WASContainerInstanceProvider extends BaseContainerInstanceProvider 
 
     @Override
     public void removeInstance(String containerId) {
-        container.undeployApp(containerId);
+        containerClient.undeployApp(containerId);
     }
 
+    public WASContainerManager getWASClient() {
+        return containerClient;
+    }
+
+    @Override
+    public ContainerInstance getInstanceById(String id) {
+        return containerInstances.get(id);
+    }
 }

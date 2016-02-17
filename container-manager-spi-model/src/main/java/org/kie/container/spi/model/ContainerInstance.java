@@ -5,6 +5,8 @@
  */
 package org.kie.container.spi.model;
 
+import org.kie.container.spi.model.providers.ContainerInstanceProvider;
+
 /**
  *
  * @author salaboy
@@ -13,6 +15,8 @@ package org.kie.container.spi.model;
  *
  */
 public interface ContainerInstance {
+    
+    public void setProvider(ContainerInstanceProvider provider);
 
     public void start();
 

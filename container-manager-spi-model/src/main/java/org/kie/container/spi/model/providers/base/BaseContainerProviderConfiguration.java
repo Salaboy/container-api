@@ -3,21 +3,21 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.kie.container.spi.model.base;
+package org.kie.container.spi.model.providers.base;
 
 import java.util.Map;
 import javax.xml.bind.annotation.XmlRootElement;
-import org.kie.container.spi.model.ContainerConfiguration;
+import org.kie.container.spi.model.providers.ContainerProviderConfiguration;
 
 /**
  *
  * @author salaboy
  */
 @XmlRootElement
-public class BaseContainerConfiguration implements ContainerConfiguration{
+public class BaseContainerProviderConfiguration implements ContainerProviderConfiguration {
 
     private Map<String, String> properties;
-    
+
     @Override
     public Map<String, String> getProperties() {
         return properties;
@@ -27,8 +27,4 @@ public class BaseContainerConfiguration implements ContainerConfiguration{
     public void setProperties(Map<String, String> props) {
         this.properties = props;
     }
-
-  
-    
-    
 }

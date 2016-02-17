@@ -10,14 +10,17 @@ import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import org.kie.container.services.info.ContainerInstanceProviderInfo;
 import org.kie.container.spi.model.ContainerInstance;
 import org.kie.container.spi.model.base.BaseContainerConfiguration;
+import org.kie.container.spi.model.providers.base.BaseContainerProviderConfiguration;
 
 /**
  *
@@ -27,34 +30,48 @@ import org.kie.container.spi.model.base.BaseContainerConfiguration;
 public interface ContainerManagerService {
 
     @GET
-    @Produces("application/json")
-    @Path("")
-    public List<ContainerInstance> getAllInstances() throws BusinessException;
+    @Produces(value = MediaType.APPLICATION_JSON)
+    @Path("providers")
+    List<String> getAllContainerProviders() throws BusinessException;
+
+    @GET
+    @Produces(value = MediaType.APPLICATION_JSON)
+    @Path("providers/instances")
+    List<ContainerInstanceProviderInfo> getAllContainerProvidersInstancesInfo() throws BusinessException;
 
     @POST
-    @Path("")
-    @Consumes(value = MediaType.APPLICATION_JSON )
-    public String newInstance(@NotNull BaseContainerConfiguration conf) throws BusinessException;
+    @Consumes(value = MediaType.APPLICATION_JSON)
+    @Path("providers/instances")
+    void registerContainerProviderInstance(@NotNull BaseContainerProviderConfiguration conf) throws BusinessException;
 
     @DELETE
-    @Path("{id}")
-    public void removeInstance(@PathParam(value = "id") String id) throws BusinessException;
+    @Path("providers/instances")
+    void unregisterContainerProviderInstance(@FormParam(value = "name") String name) throws BusinessException;
 
     @POST
-    @Path("{id}/start")
-    public void startInstance(@PathParam(value = "id") String id) throws BusinessException;
-
-    @POST
-    @Path("{id}/stop")
-    public void stopInstance(@PathParam(value = "id") String id) throws BusinessException;
-
-    @POST
-    @Path("{id}/restart")
-    public void restartInstance(@PathParam(value = "id") String id) throws BusinessException;
+    @Path("instances/")
+    @Consumes(value = MediaType.APPLICATION_JSON)
+    public String newContainerInstance(@NotNull BaseContainerConfiguration conf) throws BusinessException;
 
     @GET
     @Produces("application/json")
-    @Path("providers")
-    List<String> getAllInstanceProviderss() throws BusinessException;
+    @Path("instances/")
+    public List<ContainerInstance> getAllContainerInstances() throws BusinessException;
+
+    @DELETE
+    @Path("instances/{id}")
+    public void removeContainerInstance(@PathParam(value = "id") String id) throws BusinessException;
+
+    @POST
+    @Path("instances/{id}/start")
+    public void startContainerInstance(@PathParam(value = "id") String id) throws BusinessException;
+
+    @POST
+    @Path("instances/{id}/stop")
+    public void stopContainerInstance(@PathParam(value = "id") String id) throws BusinessException;
+
+    @POST
+    @Path("instances/{id}/restart")
+    public void restartContainerInstance(@PathParam(value = "id") String id) throws BusinessException;
 
 }

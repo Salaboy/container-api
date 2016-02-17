@@ -8,10 +8,10 @@ package org.kie.container.docker.provider;
 import com.spotify.docker.client.DockerException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.inject.Inject;
 import org.kie.container.spi.model.ContainerInstance;
 import org.kie.container.spi.model.ContainerInstanceInfo;
 import org.kie.container.spi.model.base.BaseContainerInstanceInfo;
+import org.kie.container.spi.model.providers.ContainerInstanceProvider;
 
 /**
  *
@@ -22,12 +22,23 @@ public class DockerContainerInstance implements ContainerInstance {
     private DockerContainerInstanceProvider instanceProvider;
 
     private ContainerInstanceInfo info = new BaseContainerInstanceInfo();
-
-    @Inject
-    public DockerContainerInstance(@DockerInstanceProvider DockerContainerInstanceProvider instanceProvider) {
-        this.instanceProvider = instanceProvider;
+    
+    
+    public DockerContainerInstance() {
+        
 
     }
+
+    @Override
+    public void setProvider(ContainerInstanceProvider provider) {
+        if(provider instanceof DockerContainerInstanceProvider){
+            instanceProvider = (DockerContainerInstanceProvider)provider;
+        }else{
+            throw new IllegalStateException(">>> The provider was not a DockerContainerInstanceProvider!");
+        }
+    }
+    
+    
 
     @Override
     public void start() {

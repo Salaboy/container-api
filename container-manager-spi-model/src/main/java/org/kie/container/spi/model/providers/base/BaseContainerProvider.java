@@ -3,17 +3,19 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.kie.container.spi.model.providers;
+package org.kie.container.spi.model.providers.base;
+
+import org.kie.container.spi.model.providers.ContainerProvider;
 
 /**
  *
  * @author salaboy
  */
-public abstract class BaseContainerInstanceProvider implements ContainerInstanceProvider{
+public abstract class BaseContainerProvider implements ContainerProvider{
     
-    private String providerName;
+    private final String providerName;
 
-    public BaseContainerInstanceProvider(String providerName) {
+    public BaseContainerProvider(String providerName) {
         this.providerName = providerName;
     }
 

@@ -33,7 +33,7 @@ public class App {
 //        deployment.as(Secured.class);
         deployment.setContextRoot("/api");
         deployment.addModule("sun.jdk");
-        deployment.addPackage("org.drools.runtime.agent.model");
+        deployment.addPackage("org.kie.container.services.info");
         deployment.addResource(ContainerManagerService.class);
         deployment.addResource(ContainerManagerServiceImpl.class);
         deployment.addClass(HttpStatusExceptionHandler.class);
