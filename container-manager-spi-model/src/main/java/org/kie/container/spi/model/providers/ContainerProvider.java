@@ -11,21 +11,22 @@ import org.kie.container.spi.model.ContainerConfiguration;
 
 /**
  *
- * @author salaboy This class provides the basic for a Provider to create and
- * destroy instances
+ * @author salaboy 
+ * This class provides the definition for a ContainerProvider. The provider will be in
+ *  charge of allowing us to create new ContainerInstanceProviders
  */
 public interface ContainerProvider {
+    
+    public Container createContainer(String name, ContainerConfiguration conf);
 
-    public Container create(String name, ContainerConfiguration conf);
-
-    public List<Container> getAll();
+    public List<Container> getAllContainers();
 
     public String getProviderName();
     
-    public ContainerInstanceProvider newInstanceProvider(String instanceProviderName);
+    public ContainerProviderInstance newInstanceProvider(String instanceProviderName);
     
-    public ContainerInstanceProvider getInstanceProviderByName(String instanceProviderName);
+    public ContainerProviderInstance getInstanceProviderByName(String instanceProviderName);
     
-    public List<ContainerInstanceProvider> getAllInstanceProviders();
+    public List<ContainerProviderInstance> getAllInstanceProviders();
 
 }

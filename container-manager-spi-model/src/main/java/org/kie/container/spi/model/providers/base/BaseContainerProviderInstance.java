@@ -5,23 +5,23 @@
  */
 package org.kie.container.spi.model.providers.base;
 
-import org.kie.container.spi.model.providers.ContainerInstanceProvider;
 import org.kie.container.spi.model.providers.ContainerProviderConfiguration;
+import org.kie.container.spi.model.providers.ContainerProviderInstance;
 
 /**
  *
  * @author salaboy
  */
-public abstract class BaseContainerInstanceProvider implements ContainerInstanceProvider {
+public abstract class BaseContainerProviderInstance implements ContainerProviderInstance {
 
     protected String name;
     protected String providerName;
     protected ContainerProviderConfiguration config;
     
-    public BaseContainerInstanceProvider() {
+    public BaseContainerProviderInstance() {
     }
 
-    public BaseContainerInstanceProvider(String name) {
+    public BaseContainerProviderInstance(String name) {
         this.name = name;
     }
 

@@ -17,6 +17,7 @@ public class WASContainer extends BaseContainer {
 
     public WASContainer(String name, ContainerConfiguration conf) {
         super(name, conf);
+        System.out.println(" >>> New WASContainer Instance: "+ this.hashCode());
     }
     
     

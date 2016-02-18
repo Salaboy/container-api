@@ -13,7 +13,7 @@ import org.kie.container.spi.model.ContainerInstance;
  *
  * @author salaboy
  */
-public interface ContainerInstanceProvider {
+public interface ContainerProviderInstance {
 
     public ContainerInstance createInstance(Container c) throws Exception;
 

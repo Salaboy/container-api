@@ -25,13 +25,13 @@ import javax.inject.Inject;
 import org.kie.container.spi.model.Container;
 import org.kie.container.spi.model.ContainerInstance;
 import org.kie.container.spi.model.providers.ContainerProviderConfiguration;
-import org.kie.container.spi.model.providers.base.BaseContainerInstanceProvider;
+import org.kie.container.spi.model.providers.base.BaseContainerProviderInstance;
 
 /**
  *
  * @author salaboy
  */
-public class DockerContainerInstanceProvider extends BaseContainerInstanceProvider {
+public class DockerContainerProviderInstance extends BaseContainerProviderInstance {
 
     private Map<String, ContainerInstance> containerInstances = new HashMap<>();
     private DockerClient docker;
@@ -39,9 +39,9 @@ public class DockerContainerInstanceProvider extends BaseContainerInstanceProvid
     @Inject
     private Instance<DockerContainerInstance> instance;
 
-    public DockerContainerInstanceProvider() {
+    public DockerContainerProviderInstance() {
         super("Docker Client");
-        System.out.println(">>> DockerContainerInstanceProvider Created... " + this.hashCode());
+        System.out.println(">>> New DockerContainerProviderInstance Instance... " + this.hashCode());
         
     }
     

@@ -15,7 +15,7 @@ import javax.inject.Inject;
 import org.kie.container.spi.model.Container;
 import org.kie.container.spi.model.ContainerConfiguration;
 import org.kie.container.spi.model.providers.base.BaseContainerProvider;
-import org.kie.container.spi.model.providers.ContainerInstanceProvider;
+import org.kie.container.spi.model.providers.ContainerProviderInstance;
 
 /**
  *
@@ -28,31 +28,30 @@ public class WASContainerProvider extends BaseContainerProvider {
     private Map<String, Container> containers = new HashMap<>();
     
     @Inject
-    private Instance<WASContainerInstanceProvider> providers;
-    private Map<String, WASContainerInstanceProvider> providerMap = new HashMap<>();
+    private Instance<WASContainerProviderInstance> providers;
+    private Map<String, WASContainerProviderInstance> providerMap = new HashMap<>();
 
     public WASContainerProvider() {
         super("was");
-       
-        
+        System.out.println(" >>> New WASContainerProvider Instance: "+ this.hashCode());
     }
 
 
     @Override
-    public Container create(String name, ContainerConfiguration conf) {
+    public Container createContainer(String name, ContainerConfiguration conf) {
         Container m = new WASContainer(name, conf);
         containers.put(name, m);
         return m;
     }
 
     @Override
-    public List<Container> getAll() {
+    public List<Container> getAllContainers() {
         return new ArrayList<>(containers.values());
     }
 
     @Override
-    public ContainerInstanceProvider newInstanceProvider(String instanceProviderName) {
-        WASContainerInstanceProvider instanceProvider = providers.get();
+    public ContainerProviderInstance newInstanceProvider(String instanceProviderName) {
+        WASContainerProviderInstance instanceProvider = providers.get();
         instanceProvider.setName(instanceProviderName);
         instanceProvider.setProviderName(this.getProviderName());
         providerMap.put(instanceProviderName, instanceProvider);
@@ -60,13 +59,13 @@ public class WASContainerProvider extends BaseContainerProvider {
     }
 
     @Override
-    public ContainerInstanceProvider getInstanceProviderByName(String instanceProviderName) {
+    public ContainerProviderInstance getInstanceProviderByName(String instanceProviderName) {
         return providerMap.get(instanceProviderName);
     }
 
     @Override
-    public List<ContainerInstanceProvider> getAllInstanceProviders() {
-        return new ArrayList<ContainerInstanceProvider>(providerMap.values());
+    public List<ContainerProviderInstance> getAllInstanceProviders() {
+        return new ArrayList<ContainerProviderInstance>(providerMap.values());
     }
 
    

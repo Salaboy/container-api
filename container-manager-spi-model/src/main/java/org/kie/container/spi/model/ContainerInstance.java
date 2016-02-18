@@ -5,7 +5,7 @@
  */
 package org.kie.container.spi.model;
 
-import org.kie.container.spi.model.providers.ContainerInstanceProvider;
+import org.kie.container.spi.model.providers.ContainerProviderInstance;
 
 /**
  *
@@ -16,7 +16,7 @@ import org.kie.container.spi.model.providers.ContainerInstanceProvider;
  */
 public interface ContainerInstance {
     
-    public void setProvider(ContainerInstanceProvider provider);
+    public void setProvider(ContainerProviderInstance provider);
 
     public void start();
 

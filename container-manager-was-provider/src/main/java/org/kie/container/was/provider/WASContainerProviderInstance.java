@@ -17,13 +17,13 @@ import org.drools.was.util.core.listeners.BaseNotificationListener;
 import org.kie.container.spi.model.Container;
 import org.kie.container.spi.model.ContainerInstance;
 import org.kie.container.spi.model.providers.ContainerProviderConfiguration;
-import org.kie.container.spi.model.providers.base.BaseContainerInstanceProvider;
+import org.kie.container.spi.model.providers.base.BaseContainerProviderInstance;
 
 /**
  *
  * @author salaboy
  */
-public class WASContainerInstanceProvider extends BaseContainerInstanceProvider {
+public class WASContainerProviderInstance extends BaseContainerProviderInstance {
 
     private Map<String, ContainerInstance> containerInstances = new HashMap<>();
 
@@ -33,9 +33,9 @@ public class WASContainerInstanceProvider extends BaseContainerInstanceProvider 
     private Instance<WASContainerInstance> instance;
     
 
-    public WASContainerInstanceProvider() {
+    public WASContainerProviderInstance() {
         super("WAS Client Provider");
-        System.out.println(">>> WAS Client Provider Created... " + this.hashCode());
+        System.out.println(">>> New WASContainerProviderInstance Instance... " + this.hashCode());
 
     }
 

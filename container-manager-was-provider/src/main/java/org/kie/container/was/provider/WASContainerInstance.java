@@ -5,11 +5,10 @@
  */
 package org.kie.container.was.provider;
 
-import javax.inject.Inject;
 import org.kie.container.spi.model.ContainerInstance;
 import org.kie.container.spi.model.ContainerInstanceInfo;
 import org.kie.container.spi.model.base.BaseContainerInstanceInfo;
-import org.kie.container.spi.model.providers.ContainerInstanceProvider;
+import org.kie.container.spi.model.providers.ContainerProviderInstance;
 
 /**
  *
@@ -17,25 +16,22 @@ import org.kie.container.spi.model.providers.ContainerInstanceProvider;
  */
 public class WASContainerInstance implements ContainerInstance {
 
-    private WASContainerInstanceProvider instanceProvider;
+    private WASContainerProviderInstance instanceProvider;
 
     private ContainerInstanceInfo info = new BaseContainerInstanceInfo();
 
-    
     public WASContainerInstance() {
-    
+        System.out.println(">>> New WASContainerInstance Instance... " + this.hashCode());
     }
 
     @Override
-    public void setProvider(ContainerInstanceProvider provider) {
-        if(provider instanceof WASContainerInstanceProvider){
-            instanceProvider = (WASContainerInstanceProvider)provider;
-        }else{
+    public void setProvider(ContainerProviderInstance provider) {
+        if (provider instanceof WASContainerProviderInstance) {
+            instanceProvider = (WASContainerProviderInstance) provider;
+        } else {
             throw new IllegalStateException(">>> The provider was not a WAS ContainerInstanceProvider!");
         }
     }
-    
-    
 
     @Override
     public void start() {

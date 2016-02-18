@@ -17,6 +17,7 @@ public class DockerContainer extends BaseContainer {
 
     public DockerContainer(String name, ContainerConfiguration conf) {
         super(name, conf);
+        System.out.println(" >>> New DockerContainer Instance: "+ this.hashCode());
     }
     
     

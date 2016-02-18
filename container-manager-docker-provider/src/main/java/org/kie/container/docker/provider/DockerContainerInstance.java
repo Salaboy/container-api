@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 import org.kie.container.spi.model.ContainerInstance;
 import org.kie.container.spi.model.ContainerInstanceInfo;
 import org.kie.container.spi.model.base.BaseContainerInstanceInfo;
-import org.kie.container.spi.model.providers.ContainerInstanceProvider;
+import org.kie.container.spi.model.providers.ContainerProviderInstance;
 
 /**
  *
@@ -19,20 +19,20 @@ import org.kie.container.spi.model.providers.ContainerInstanceProvider;
  */
 public class DockerContainerInstance implements ContainerInstance {
 
-    private DockerContainerInstanceProvider instanceProvider;
+    private DockerContainerProviderInstance instanceProvider;
 
     private ContainerInstanceInfo info = new BaseContainerInstanceInfo();
     
     
     public DockerContainerInstance() {
-        
+        System.out.println(">>> New DockerContainerInstance Instance... " + this.hashCode());
 
     }
 
     @Override
-    public void setProvider(ContainerInstanceProvider provider) {
-        if(provider instanceof DockerContainerInstanceProvider){
-            instanceProvider = (DockerContainerInstanceProvider)provider;
+    public void setProvider(ContainerProviderInstance provider) {
+        if(provider instanceof DockerContainerProviderInstance){
+            instanceProvider = (DockerContainerProviderInstance)provider;
         }else{
             throw new IllegalStateException(">>> The provider was not a DockerContainerInstanceProvider!");
         }

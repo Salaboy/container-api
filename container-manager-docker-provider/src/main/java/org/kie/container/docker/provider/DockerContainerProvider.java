@@ -15,7 +15,7 @@ import javax.inject.Inject;
 import org.kie.container.spi.model.Container;
 import org.kie.container.spi.model.ContainerConfiguration;
 import org.kie.container.spi.model.providers.base.BaseContainerProvider;
-import org.kie.container.spi.model.providers.ContainerInstanceProvider;
+import org.kie.container.spi.model.providers.ContainerProviderInstance;
 
 /**
  *
@@ -26,43 +26,44 @@ import org.kie.container.spi.model.providers.ContainerInstanceProvider;
 public class DockerContainerProvider extends BaseContainerProvider {
 
     private Map<String, Container> containers = new HashMap<>();
-    private Map<String, DockerContainerInstanceProvider> providerMap = new HashMap<>();
+    private Map<String, DockerContainerProviderInstance> providerMap = new HashMap<>();
     @Inject
-    private Instance<DockerContainerInstanceProvider> providers;
+    private Instance<DockerContainerProviderInstance> providers;
     
     public DockerContainerProvider() {
         super("docker");
-
+        System.out.println(" >>> New DockerContainerProvider Instance: "+ this.hashCode());
     }
 
     @Override
-    public ContainerInstanceProvider newInstanceProvider(String providerInstanceName) {
-        DockerContainerInstanceProvider provider = providers.get();
+    public ContainerProviderInstance newInstanceProvider(String providerInstanceName) {
+        DockerContainerProviderInstance provider = providers.get();
         provider.setName(providerInstanceName);
+        provider.setProviderName(getProviderName());
         providerMap.put(providerInstanceName, provider);
         return provider;
     }
 
     @Override
-    public ContainerInstanceProvider getInstanceProviderByName(String instanceProviderName) {
+    public ContainerProviderInstance getInstanceProviderByName(String instanceProviderName) {
         return providerMap.get(instanceProviderName);
     }
 
     @Override
-    public List<ContainerInstanceProvider> getAllInstanceProviders() {
-        return new ArrayList<ContainerInstanceProvider>(providerMap.values());
+    public List<ContainerProviderInstance> getAllInstanceProviders() {
+        return new ArrayList<ContainerProviderInstance>(providerMap.values());
     }
 
 
     @Override
-    public Container create(String name, ContainerConfiguration conf) {
+    public Container createContainer(String name, ContainerConfiguration conf) {
         Container m = new DockerContainer(name, conf);
         containers.put(name, m);
         return m;
     }
 
     @Override
-    public List<Container> getAll() {
+    public List<Container> getAllContainers() {
         return new ArrayList<>(containers.values());
     }
 

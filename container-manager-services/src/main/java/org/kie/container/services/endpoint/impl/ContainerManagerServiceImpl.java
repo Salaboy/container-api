@@ -22,8 +22,8 @@ import org.kie.container.spi.model.ContainerInstance;
 import org.kie.container.spi.model.base.BaseContainerConfiguration;
 import org.kie.container.spi.model.providers.ContainerProvider;
 import org.kie.container.services.info.ContainerInstanceProviderInfo;
-import org.kie.container.spi.model.providers.ContainerInstanceProvider;
 import org.kie.container.spi.model.providers.base.BaseContainerProviderConfiguration;
+import org.kie.container.spi.model.providers.ContainerProviderInstance;
 
 /**
  *
@@ -41,9 +41,9 @@ public class ContainerManagerServiceImpl implements ContainerManagerService {
 
     private Map<String, ContainerProvider> containerProviders = new HashMap<String, ContainerProvider>();
 
-    private Map<String, ContainerInstanceProvider> containerInstanceProviders = new HashMap<String, ContainerInstanceProvider>();
+    private Map<String, ContainerProviderInstance> containerInstanceProviders = new HashMap<String, ContainerProviderInstance>();
 
-    private Map<String, List<ContainerInstanceProvider>> containerInstanceProvidersByProvider = new HashMap<String, List<ContainerInstanceProvider>>();
+    private Map<String, List<ContainerProviderInstance>> containerInstanceProvidersByProvider = new HashMap<String, List<ContainerProviderInstance>>();
 
     private Map<String, List<ContainerInstance>> instances = new HashMap<String, List<ContainerInstance>>();
 
@@ -74,7 +74,7 @@ public class ContainerManagerServiceImpl implements ContainerManagerService {
     @Override
     public List<ContainerInstanceProviderInfo> getAllContainerProvidersInstancesInfo() throws BusinessException {
         List<ContainerInstanceProviderInfo> cipInfos = new ArrayList<ContainerInstanceProviderInfo>();
-        for (ContainerInstanceProvider cip : containerInstanceProviders.values()) {
+        for (ContainerProviderInstance cip : containerInstanceProviders.values()) {
             cipInfos.add(new ContainerInstanceProviderInfo(cip.getName(), cip.getProviderName(), cip.getConfig().getProperties()));
         }
         return cipInfos;
@@ -85,10 +85,10 @@ public class ContainerManagerServiceImpl implements ContainerManagerService {
         String name = conf.getProperties().get("name");
         String provider = conf.getProperties().get("provider");
         ContainerProvider containerProvider = containerProviders.get(provider);
-        ContainerInstanceProvider newInstanceProvider = containerProvider.newInstanceProvider(name);
+        ContainerProviderInstance newInstanceProvider = containerProvider.newInstanceProvider(name);
         containerInstanceProviders.put(name, newInstanceProvider);
         if (containerInstanceProvidersByProvider.get(provider) == null) {
-            containerInstanceProvidersByProvider.put(provider, new ArrayList<ContainerInstanceProvider>());
+            containerInstanceProvidersByProvider.put(provider, new ArrayList<ContainerProviderInstance>());
         }
         containerInstanceProvidersByProvider.get(provider).add(newInstanceProvider);
         newInstanceProvider.configure(conf);
@@ -96,7 +96,7 @@ public class ContainerManagerServiceImpl implements ContainerManagerService {
 
     @Override
     public void unregisterContainerProviderInstance(String instanceName) throws BusinessException {
-        ContainerInstanceProvider instanceProvider = containerInstanceProviders.get(instanceName);
+        ContainerProviderInstance instanceProvider = containerInstanceProviders.get(instanceName);
         //@TODO: clean up the instanceProvider (maybe disconect). 
         containerInstanceProviders.remove(instanceName);
     }
@@ -113,11 +113,11 @@ public class ContainerManagerServiceImpl implements ContainerManagerService {
 
         if (provider != null) {
 
-            Container c = provider.create(name, conf);
+            Container c = provider.createContainer(name, conf);
 
             ContainerInstance ci;
             try {
-                ContainerInstanceProvider cip = containerInstanceProvidersByProvider.get(providerString).get(0);
+                ContainerProviderInstance cip = containerInstanceProvidersByProvider.get(providerString).get(0);
                 ci = cip.createInstance(c);
                 if (instances.get(cip.getName()) == null) {
                     instances.put(cip.getName(), new ArrayList<ContainerInstance>());
@@ -137,7 +137,7 @@ public class ContainerManagerServiceImpl implements ContainerManagerService {
 //        if (principal != null && principal.getKeycloakSecurityContext() != null) {
         List<ContainerInstance> cis = new ArrayList<ContainerInstance>();
         for (String provider : containerInstanceProvidersByProvider.keySet()) {
-            for (ContainerInstanceProvider cip : containerInstanceProvidersByProvider.get(provider)) {
+            for (ContainerProviderInstance cip : containerInstanceProvidersByProvider.get(provider)) {
                 instances.put(provider, cip.getAllInstances());
                 cis.addAll(cip.getAllInstances());
             }
@@ -153,7 +153,7 @@ public class ContainerManagerServiceImpl implements ContainerManagerService {
     @Override
     public void removeContainerInstance(String id) throws BusinessException {
 
-        ContainerInstanceProvider provider = getProviderForContainerInstanceId(id);
+        ContainerProviderInstance provider = getProviderForContainerInstanceId(id);
         if (provider != null) {
             provider.removeInstance(id);
         }
@@ -162,7 +162,7 @@ public class ContainerManagerServiceImpl implements ContainerManagerService {
 
     @Override
     public void startContainerInstance(String id) throws BusinessException {
-        ContainerInstanceProvider provider = getProviderForContainerInstanceId(id);
+        ContainerProviderInstance provider = getProviderForContainerInstanceId(id);
         if (provider != null) {
             provider.getInstanceById(id).start();
         }
@@ -171,7 +171,7 @@ public class ContainerManagerServiceImpl implements ContainerManagerService {
 
     @Override
     public void stopContainerInstance(String id) throws BusinessException {
-        ContainerInstanceProvider provider = getProviderForContainerInstanceId(id);
+        ContainerProviderInstance provider = getProviderForContainerInstanceId(id);
         if (provider != null) {
             provider.getInstanceById(id).stop();
         }
@@ -180,14 +180,14 @@ public class ContainerManagerServiceImpl implements ContainerManagerService {
 
     @Override
     public void restartContainerInstance(String id) throws BusinessException {
-        ContainerInstanceProvider provider = getProviderForContainerInstanceId(id);
+        ContainerProviderInstance provider = getProviderForContainerInstanceId(id);
         if (provider != null) {
             provider.getInstanceById(id).restart();
         }
 
     }
 
-    private ContainerInstanceProvider getProviderForContainerInstanceId(String id) {
+    private ContainerProviderInstance getProviderForContainerInstanceId(String id) {
 
         // @TODO: Nasty Lookup.. improve this one
         for (String providerString : instances.keySet()) {
