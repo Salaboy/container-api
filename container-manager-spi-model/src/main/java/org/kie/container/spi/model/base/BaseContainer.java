@@ -6,7 +6,7 @@
 package org.kie.container.spi.model.base;
 
 import org.kie.container.spi.model.Container;
-import org.kie.container.spi.model.ContainerConfiguration;
+import org.kie.container.spi.model.ContainerInstanceConfiguration;
 
 /**
  *
@@ -14,7 +14,7 @@ import org.kie.container.spi.model.ContainerConfiguration;
  */
 public class BaseContainer implements Container{
     private String name;
-    private ContainerConfiguration conf;
+    private ContainerInstanceConfiguration conf;
 
     public BaseContainer() {
     }
@@ -23,7 +23,7 @@ public class BaseContainer implements Container{
         this.name = name;
     }
 
-    public BaseContainer(String name, ContainerConfiguration conf) {
+    public BaseContainer(String name, ContainerInstanceConfiguration conf) {
         this.name = name;
         this.conf = conf;
     }
@@ -34,7 +34,7 @@ public class BaseContainer implements Container{
     }
 
     @Override
-    public ContainerConfiguration getConfiguration() {
+    public ContainerInstanceConfiguration getConfiguration() {
         return conf;
     }
     

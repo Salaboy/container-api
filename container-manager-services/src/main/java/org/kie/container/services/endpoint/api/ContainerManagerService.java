@@ -18,9 +18,10 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import org.kie.container.services.info.ContainerInstanceProviderInfo;
-import org.kie.container.spi.model.ContainerInstance;
-import org.kie.container.spi.model.base.BaseContainerConfiguration;
+import org.kie.container.spi.model.ContainerInstanceInfo;
+import org.kie.container.spi.model.base.BaseContainerInstanceConfiguration;
 import org.kie.container.spi.model.providers.base.BaseContainerProviderConfiguration;
+import org.kie.container.spi.model.providers.info.ContainerProviderInfo;
 
 /**
  *
@@ -32,12 +33,12 @@ public interface ContainerManagerService {
     @GET
     @Produces(value = MediaType.APPLICATION_JSON)
     @Path("providers")
-    List<String> getAllContainerProviders() throws BusinessException;
+    List<ContainerProviderInfo> getAllContainerProviders() throws BusinessException;
 
     @GET
     @Produces(value = MediaType.APPLICATION_JSON)
     @Path("providers/instances")
-    List<ContainerInstanceProviderInfo> getAllContainerProvidersInstancesInfo() throws BusinessException;
+    List<ContainerInstanceProviderInfo> getAllContainerProvidersInstances() throws BusinessException;
 
     @POST
     @Consumes(value = MediaType.APPLICATION_JSON)
@@ -51,12 +52,12 @@ public interface ContainerManagerService {
     @POST
     @Path("instances/")
     @Consumes(value = MediaType.APPLICATION_JSON)
-    public String newContainerInstance(@NotNull BaseContainerConfiguration conf) throws BusinessException;
+    public String newContainerInstance(@NotNull BaseContainerInstanceConfiguration conf) throws BusinessException;
 
     @GET
     @Produces("application/json")
     @Path("instances/")
-    public List<ContainerInstance> getAllContainerInstances() throws BusinessException;
+    public List<ContainerInstanceInfo> getAllContainerInstances() throws BusinessException;
 
     @DELETE
     @Path("instances/{id}")

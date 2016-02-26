@@ -11,21 +11,26 @@ import org.kie.container.spi.model.providers.ContainerProvider;
  *
  * @author salaboy
  */
-public abstract class BaseContainerProvider implements ContainerProvider{
-    
-    private final String providerName;
+public abstract class BaseContainerProvider implements ContainerProvider {
 
-    public BaseContainerProvider(String providerName) {
+    private final String providerName;
+    private final String version;
+
+    public BaseContainerProvider(String providerName, String version) {
         this.providerName = providerName;
+        this.version = version;
     }
 
     @Override
     public String getProviderName() {
         return providerName;
     }
+
+    @Override
+    public String getVersion() {
+        return version;
+    }
     
     
-    
-    
-    
+
 }

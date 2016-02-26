@@ -5,9 +5,9 @@
  */
 package org.kie.container.spi.model.providers;
 
-import java.util.List;
-import org.kie.container.spi.model.Container;
-import org.kie.container.spi.model.ContainerInstance;
+import org.kie.container.spi.model.ContainerInstanceConfiguration;
+import org.kie.container.spi.model.ContainerInstanceInfo;
+import org.kie.container.spi.model.providers.info.ContainerProviderInstanceInfo;
 
 /**
  *
@@ -15,21 +15,23 @@ import org.kie.container.spi.model.ContainerInstance;
  */
 public interface ContainerProviderInstance {
 
-    public ContainerInstance createInstance(Container c) throws Exception;
-
-    public void configure(ContainerProviderConfiguration conf);
-
-    public List<ContainerInstance> getAllInstances();
-
-    public void removeInstance(String id);
-
-    public ContainerInstance getInstanceById(String id);
-
     public String getName();
 
-    public ContainerProviderConfiguration getConfig();
+    public ContainerInstanceConfiguration getConfig();
+    
+    public ContainerInstanceInfo getContainerInstanceInfo();
+    
+    public ContainerProviderInstanceInfo getContainerProviderInstanceInfo();
 
     public String getProviderName();
 
     public void setProviderName(String providerName);
+
+    public ContainerInstanceInfo create() throws Exception;
+
+    public void start();
+
+    public void stop();
+
+    public void restart();
 }

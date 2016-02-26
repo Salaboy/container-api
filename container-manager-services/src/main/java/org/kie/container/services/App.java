@@ -5,10 +5,6 @@
  */
 package org.kie.container.services;
 
-
-
-
-
 import org.kie.container.services.endpoint.exception.BusinessException;
 import org.kie.container.services.endpoint.exception.HttpStatusExceptionHandler;
 import org.kie.container.services.endpoint.impl.ContainerManagerServiceImpl;
@@ -33,12 +29,12 @@ public class App {
 //        deployment.as(Secured.class);
         deployment.setContextRoot("/api");
         deployment.addModule("sun.jdk");
-        deployment.addPackage("org.kie.container.services.info");
+        deployment.addPackages(true, "org.kie.container.services");
         deployment.addResource(ContainerManagerService.class);
         deployment.addResource(ContainerManagerServiceImpl.class);
         deployment.addClass(HttpStatusExceptionHandler.class);
         deployment.addClass(BusinessException.class);
-        
+
         deployment.addAllDependencies();
         container.deploy(deployment);
     }

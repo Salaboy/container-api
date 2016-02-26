@@ -32,6 +32,11 @@
         </dependency>
         <dependency>
             <groupId>org.kie</groupId>
+            <artifactId>container-manager-cluster</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kie</groupId>
             <artifactId>container-manager-docker-provider</artifactId>
             <version>${project.version}</version>
         </dependency>

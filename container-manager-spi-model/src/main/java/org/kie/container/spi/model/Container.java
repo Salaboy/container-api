@@ -12,6 +12,6 @@ public interface Container {
 
     public String getName();
 
-    public ContainerConfiguration getConfiguration();
+    public ContainerInstanceConfiguration getConfiguration();
     
 }

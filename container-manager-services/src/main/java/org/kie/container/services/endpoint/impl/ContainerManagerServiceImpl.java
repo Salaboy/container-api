@@ -15,15 +15,20 @@ import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.SecurityContext;
+import org.kie.container.manager.cluster.store.ContainerRegistry;
 
 import org.kie.container.services.endpoint.api.ContainerManagerService;
-import org.kie.container.spi.model.Container;
-import org.kie.container.spi.model.ContainerInstance;
-import org.kie.container.spi.model.base.BaseContainerConfiguration;
+import org.kie.container.services.endpoint.impl.factories.ContainerProviderInstanceFactory;
 import org.kie.container.spi.model.providers.ContainerProvider;
 import org.kie.container.services.info.ContainerInstanceProviderInfo;
-import org.kie.container.spi.model.providers.base.BaseContainerProviderConfiguration;
+import org.kie.container.spi.model.ContainerInstanceInfo;
+import org.kie.container.spi.model.base.BaseContainerInstanceConfiguration;
+import org.kie.container.spi.model.providers.info.ContainerProviderInfo;
 import org.kie.container.spi.model.providers.ContainerProviderInstance;
+import org.kie.container.spi.model.providers.base.BaseContainerProviderConfiguration;
+import org.kie.container.spi.model.providers.info.ContainerProviderInstanceInfo;
+import org.kie.container.spi.model.providers.info.ContainerProviderInfoImpl;
+import org.kie.container.spi.model.providers.info.ContainerProviderInstanceInfoImpl;
 
 /**
  *
@@ -37,15 +42,14 @@ public class ContainerManagerServiceImpl implements ContainerManagerService {
 
     @Inject
     @Any
-    private Instance<ContainerProvider> containerInstanceProvider;
-
-    private Map<String, ContainerProvider> containerProviders = new HashMap<String, ContainerProvider>();
+    private Instance<ContainerProvider> containerProvider;
 
     private Map<String, ContainerProviderInstance> containerInstanceProviders = new HashMap<String, ContainerProviderInstance>();
 
-    private Map<String, List<ContainerProviderInstance>> containerInstanceProvidersByProvider = new HashMap<String, List<ContainerProviderInstance>>();
+    @Inject
+    private ContainerRegistry registry;
 
-    private Map<String, List<ContainerInstance>> instances = new HashMap<String, List<ContainerInstance>>();
+    private boolean initialized = false;
 
     public ContainerManagerServiceImpl() {
 
@@ -53,28 +57,30 @@ public class ContainerManagerServiceImpl implements ContainerManagerService {
 
     @PostConstruct
     public void cacheBeans() {
-        System.out.println(">>> After Init");
-        for (ContainerProvider p : containerInstanceProvider) {
-            System.out.println(">> New Container Instance Provider Found: " + p);
-            containerProviders.put(p.getProviderName(), p);
+        if (!initialized) {
+            registry.init();
+            System.out.println(">>> After Init");
+            for (ContainerProvider p : containerProvider) {
+                System.out.println(">> New Container Instance Provider Found: " + p);
+                registry.registerContainerProvider(p.getProviderName(), new ContainerProviderInfoImpl(p.getProviderName(), p.getVersion()));
+            }
+            initialized = true;
         }
 
     }
 
     @Override
-    public List<String> getAllContainerProviders() throws BusinessException {
-        cacheBeans();
-        List<String> providers = new ArrayList<String>();
-        for (ContainerProvider cip : containerProviders.values()) {
-            providers.add(cip.getProviderName());
+    public List<ContainerProviderInfo> getAllContainerProviders() throws BusinessException {
+        if (!initialized) {
+            cacheBeans();
         }
-        return providers;
+        return registry.getContainerProviders();
     }
 
     @Override
-    public List<ContainerInstanceProviderInfo> getAllContainerProvidersInstancesInfo() throws BusinessException {
+    public List<ContainerInstanceProviderInfo> getAllContainerProvidersInstances() throws BusinessException {
         List<ContainerInstanceProviderInfo> cipInfos = new ArrayList<ContainerInstanceProviderInfo>();
-        for (ContainerProviderInstance cip : containerInstanceProviders.values()) {
+        for (ContainerProviderInstanceInfo cip : registry.getContainerProviderInstances()) {
             cipInfos.add(new ContainerInstanceProviderInfo(cip.getName(), cip.getProviderName(), cip.getConfig().getProperties()));
         }
         return cipInfos;
@@ -84,46 +90,37 @@ public class ContainerManagerServiceImpl implements ContainerManagerService {
     public void registerContainerProviderInstance(BaseContainerProviderConfiguration conf) throws BusinessException {
         String name = conf.getProperties().get("name");
         String provider = conf.getProperties().get("provider");
-        ContainerProvider containerProvider = containerProviders.get(provider);
-        ContainerProviderInstance newInstanceProvider = containerProvider.newInstanceProvider(name);
-        containerInstanceProviders.put(name, newInstanceProvider);
-        if (containerInstanceProvidersByProvider.get(provider) == null) {
-            containerInstanceProvidersByProvider.put(provider, new ArrayList<ContainerProviderInstance>());
-        }
-        containerInstanceProvidersByProvider.get(provider).add(newInstanceProvider);
-        newInstanceProvider.configure(conf);
+
+        ContainerProviderInstanceInfo newInstanceProviderInfo = new ContainerProviderInstanceInfoImpl(name, provider, conf);
+
+        registry.registerContainerProviderInstance(name, newInstanceProviderInfo);
+
     }
 
     @Override
     public void unregisterContainerProviderInstance(String instanceName) throws BusinessException {
-        ContainerProviderInstance instanceProvider = containerInstanceProviders.get(instanceName);
-        //@TODO: clean up the instanceProvider (maybe disconect). 
-        containerInstanceProviders.remove(instanceName);
+        registry.removeContainerProviderInstance(instanceName);
     }
 
     @Override
-    public String newContainerInstance(BaseContainerConfiguration conf) throws BusinessException {
+    public String newContainerInstance(BaseContainerInstanceConfiguration conf) throws BusinessException {
 
-        String providerString = conf.getProperties().get("provider");
+        String providerString = conf.getProperties().get("providerName");
         String name = conf.getProperties().get("name");
         System.out.println(">>>> Name: " + name);
         System.out.println(">>>> Provider: " + providerString);
 
-        ContainerProvider provider = containerProviders.get(providerString);
+        ContainerProviderInstanceInfo providerInfo = registry.getContainerProviderInstanceByName(providerString);
 
-        if (provider != null) {
+        if (providerInfo != null) {
 
-            Container c = provider.createContainer(name, conf);
-
-            ContainerInstance ci;
             try {
-                ContainerProviderInstance cip = containerInstanceProvidersByProvider.get(providerString).get(0);
-                ci = cip.createInstance(c);
-                if (instances.get(cip.getName()) == null) {
-                    instances.put(cip.getName(), new ArrayList<ContainerInstance>());
-                }
-                instances.get(cip.getName()).add(ci);
-                return ci.getInfo().getId();
+
+                ContainerProviderInstance cpi = ContainerProviderInstanceFactory.newContainerProviderInstance(providerInfo, conf);
+
+                containerInstanceProviders.put(cpi.getContainerInstanceInfo().getId(), cpi);
+                registry.registerContainerInstanceByProvider(cpi.getProviderName(), cpi.getContainerInstanceInfo());
+                return cpi.getContainerInstanceInfo().getId();
             } catch (Exception ex) {
                 Logger.getLogger(ContainerManagerServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -132,75 +129,65 @@ public class ContainerManagerServiceImpl implements ContainerManagerService {
     }
 
     @Override
-    public List<ContainerInstance> getAllContainerInstances() throws BusinessException {
-//        KeycloakPrincipal principal = (KeycloakPrincipal) context.getUserPrincipal();
-//        if (principal != null && principal.getKeycloakSecurityContext() != null) {
-        List<ContainerInstance> cis = new ArrayList<ContainerInstance>();
-        for (String provider : containerInstanceProvidersByProvider.keySet()) {
-            for (ContainerProviderInstance cip : containerInstanceProvidersByProvider.get(provider)) {
-                instances.put(provider, cip.getAllInstances());
-                cis.addAll(cip.getAllInstances());
-            }
-
-        }
-
-        return cis;
-//        } else {
-//            throw new BusinessException("You don't have the appropriate permession to access this service");
-//        }
+    public List<ContainerInstanceInfo> getAllContainerInstances() throws BusinessException {
+        return registry.getAllContainerInstances();
     }
 
     @Override
     public void removeContainerInstance(String id) throws BusinessException {
 
-        ContainerProviderInstance provider = getProviderForContainerInstanceId(id);
-        if (provider != null) {
-            provider.removeInstance(id);
-        }
+        containerInstanceProviders.remove(id);
+
+        registry.removeContainerInstance(id);
 
     }
 
     @Override
     public void startContainerInstance(String id) throws BusinessException {
-        ContainerProviderInstance provider = getProviderForContainerInstanceId(id);
-        if (provider != null) {
-            provider.getInstanceById(id).start();
+        ContainerProviderInstance cpi = containerInstanceProviders.get(id);
+        if (cpi == null) {
+            // The Container Instance might not be created in this node yet
+            ContainerInstanceInfo containerInstanceById = registry.getContainerInstanceById(id);
+            //try creating the container instance locally to execute the operation
+            if (containerInstanceById == null) {
+                throw new BusinessException("Container Instance cannot be found!");
+            }
         }
+
+        cpi.start();
 
     }
 
     @Override
     public void stopContainerInstance(String id) throws BusinessException {
-        ContainerProviderInstance provider = getProviderForContainerInstanceId(id);
-        if (provider != null) {
-            provider.getInstanceById(id).stop();
+        ContainerProviderInstance cpi = containerInstanceProviders.get(id);
+        if (cpi == null) {
+            // The Container Instance might not be created in this node yet
+            ContainerInstanceInfo containerInstanceById = registry.getContainerInstanceById(id);
+            //try creating the container instance locally to execute the operation
+            if (containerInstanceById == null) {
+                throw new BusinessException("Container Instance cannot be found!");
+            }
         }
+
+        cpi.stop();
 
     }
 
     @Override
     public void restartContainerInstance(String id) throws BusinessException {
-        ContainerProviderInstance provider = getProviderForContainerInstanceId(id);
-        if (provider != null) {
-            provider.getInstanceById(id).restart();
-        }
-
-    }
-
-    private ContainerProviderInstance getProviderForContainerInstanceId(String id) {
-
-        // @TODO: Nasty Lookup.. improve this one
-        for (String providerString : instances.keySet()) {
-            for (ContainerInstance ci : instances.get(providerString)) {
-                if (ci.getInfo().getId().equals(id)) {
-                    
-                    return containerInstanceProviders.get(ci.getInfo().getName());
-                    
-                }
+        ContainerProviderInstance cpi = containerInstanceProviders.get(id);
+        if (cpi == null) {
+            // The Container Instance might not be created in this node yet
+            ContainerInstanceInfo containerInstanceById = registry.getContainerInstanceById(id);
+            //try creating the container instance locally to execute the operation
+            if (containerInstanceById == null) {
+                throw new BusinessException("Container Instance cannot be found!");
             }
-
         }
-        return null;
+
+        cpi.restart();
+
     }
 
 }

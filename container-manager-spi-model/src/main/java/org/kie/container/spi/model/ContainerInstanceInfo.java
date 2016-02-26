@@ -7,13 +7,15 @@ package org.kie.container.spi.model;
 
 /**
  *
- * @author salaboy
- * This class represent the Container instance information, which might describe how to 
- * talk with the application/image instance and which features are provided
+ * @author salaboy This class represent the Container instance information,
+ * which might describe how to talk with the application/image instance and
+ * which features are provided
  */
 public interface ContainerInstanceInfo {
-    String getId();
-    void setId(String id);
-    String getName();
-    void setName(String name);
+
+    public String getId();
+
+    public String getName();
+
+    public ContainerInstanceConfiguration getConfig();
 }

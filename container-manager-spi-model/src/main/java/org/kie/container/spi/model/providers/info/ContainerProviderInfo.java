@@ -3,19 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.kie.container.spi.model.providers;
+package org.kie.container.spi.model.providers.info;
 
 /**
  *
- * @author salaboy This class provides the definition for a ContainerProvider.
- * The provider will be in charge of allowing us to create new
- * ContainerInstanceProviders
+ * @author salaboy
  */
-public interface ContainerProvider {
-
+public interface ContainerProviderInfo {
     public String getProviderName();
-
     public String getVersion();
-
-
 }

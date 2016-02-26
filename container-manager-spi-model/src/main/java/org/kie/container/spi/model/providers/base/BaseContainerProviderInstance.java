@@ -5,8 +5,10 @@
  */
 package org.kie.container.spi.model.providers.base;
 
-import org.kie.container.spi.model.providers.ContainerProviderConfiguration;
+import org.kie.container.spi.model.ContainerInstanceConfiguration;
+import org.kie.container.spi.model.ContainerInstanceInfo;
 import org.kie.container.spi.model.providers.ContainerProviderInstance;
+import org.kie.container.spi.model.providers.info.ContainerProviderInstanceInfo;
 
 /**
  *
@@ -16,13 +18,16 @@ public abstract class BaseContainerProviderInstance implements ContainerProvider
 
     protected String name;
     protected String providerName;
-    protected ContainerProviderConfiguration config;
+    protected ContainerInstanceConfiguration config;
+    protected ContainerInstanceInfo containerInstanceInfo;
+    protected ContainerProviderInstanceInfo containerProviderInstanceInfo;
     
     public BaseContainerProviderInstance() {
     }
 
-    public BaseContainerProviderInstance(String name) {
+    public BaseContainerProviderInstance(String name, String providerName) {
         this.name = name;
+        this.providerName = providerName;
     }
 
     @Override
@@ -35,7 +40,7 @@ public abstract class BaseContainerProviderInstance implements ContainerProvider
     }
 
     @Override
-    public ContainerProviderConfiguration getConfig() {
+    public ContainerInstanceConfiguration getConfig() {
         return config;
     }
 
@@ -47,6 +52,16 @@ public abstract class BaseContainerProviderInstance implements ContainerProvider
     @Override
     public void setProviderName(String providerName) {
         this.providerName = providerName;
+    }
+
+    @Override
+    public ContainerInstanceInfo getContainerInstanceInfo() {
+        return containerInstanceInfo;
+    }
+
+    @Override
+    public ContainerProviderInstanceInfo getContainerProviderInstanceInfo() {
+        return containerProviderInstanceInfo;
     }
     
     

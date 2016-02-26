@@ -5,8 +5,8 @@
  */
 package org.kie.container.docker.provider;
 
-import org.kie.container.spi.model.ContainerConfiguration;
 import org.kie.container.spi.model.base.BaseContainer;
+import org.kie.container.spi.model.ContainerInstanceConfiguration;
 
 
 /**
@@ -15,7 +15,7 @@ import org.kie.container.spi.model.base.BaseContainer;
  */
 public class DockerContainer extends BaseContainer {
 
-    public DockerContainer(String name, ContainerConfiguration conf) {
+    public DockerContainer(String name, ContainerInstanceConfiguration conf) {
         super(name, conf);
         System.out.println(" >>> New DockerContainer Instance: "+ this.hashCode());
     }

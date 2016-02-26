@@ -20,12 +20,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
-import org.kie.container.spi.model.Container;
-import org.kie.container.spi.model.ContainerInstance;
-import org.kie.container.spi.model.providers.ContainerProviderConfiguration;
+import org.kie.container.spi.model.ContainerInstanceConfiguration;
+import org.kie.container.spi.model.ContainerInstanceInfo;
 import org.kie.container.spi.model.providers.base.BaseContainerProviderInstance;
+import org.kie.container.spi.model.providers.info.ContainerInstanceInfoImpl;
+import org.kie.container.spi.model.providers.info.ContainerProviderInstanceInfo;
 
 /**
  *
@@ -33,39 +32,28 @@ import org.kie.container.spi.model.providers.base.BaseContainerProviderInstance;
  */
 public class DockerContainerProviderInstance extends BaseContainerProviderInstance {
 
-    private Map<String, ContainerInstance> containerInstances = new HashMap<>();
     private DockerClient docker;
+    
 
-    @Inject
-    private Instance<DockerContainerInstance> instance;
-
-    public DockerContainerProviderInstance() {
-        super("Docker Client");
+    public DockerContainerProviderInstance(ContainerProviderInstanceInfo cpi, ContainerInstanceConfiguration config) {
+        super("Docker Client", "docker");
         System.out.println(">>> New DockerContainerProviderInstance Instance... " + this.hashCode());
-        
-    }
-    
-    
-
-    @Override
-    public void configure(ContainerProviderConfiguration config) {
-        //@TODO: use the conf to configure the Docker Deamon
         this.config = config;
+        this.containerProviderInstanceInfo = cpi;
+        
         try {
+            // If I wanted a custom connection to a custom configured docker deamon I should use here the information contained in CPI
             docker = DefaultDockerClient.fromEnv().build();
         } catch (DockerCertificateException ex) {
             Logger.getLogger(DockerContainerProvider.class.getName()).log(Level.SEVERE, null, ex);
         }
+
     }
 
-
     @Override
-    public ContainerInstance createInstance(Container c) throws DockerCertificateException, DockerException, InterruptedException {
+    public ContainerInstanceInfo create() throws DockerCertificateException, DockerException, InterruptedException {
 
-        ContainerInstance ci = instance.get();
-        ci.getInfo().setName(c.getConfiguration().getProperties().get("name"));
         // Create a client based on DOCKER_HOST and DOCKER_CERT_PATH env vars
-
         // Pull an image
         // docker.pull(m.getConfiguration().getProperty("name"));
         // Bind container ports to host ports
@@ -89,7 +77,7 @@ public class DockerContainerProviderInstance extends BaseContainerProviderInstan
 // Create container with exposed ports
         final ContainerConfig containerConfig = ContainerConfig.builder()
                 .hostConfig(hostConfig)
-                .image(c.getConfiguration().getProperties().get("name")).exposedPorts(ports)
+                .image(config.getProperties().get("name")).exposedPorts(ports)
                 //                .cmd("sh", "-c", "while :; do sleep 1; done")
                 .build();
 
@@ -101,9 +89,9 @@ public class DockerContainerProviderInstance extends BaseContainerProviderInstan
         final ContainerInfo info = docker.inspectContainer(id);
         System.out.println(">>> INFO: " + info);
         String shortId = id.substring(0, 12);
-        ci.getInfo().setId(shortId); // get Short Id
-        containerInstances.put(shortId, ci);
 
+        containerInstanceInfo = new ContainerInstanceInfoImpl(shortId, config.getProperties().get("name"), config);
+        
 // Start container
 //        docker.startContainer(id);
 // Exec command inside running container with attached STDOUT and STDERR
@@ -116,32 +104,45 @@ public class DockerContainerProviderInstance extends BaseContainerProviderInstan
 //
 //// Remove container
 //        docker.removeContainer(id);
-        return ci;
+        return containerInstanceInfo;
     }
 
     @Override
-    public List<ContainerInstance> getAllInstances() {
-        return new ArrayList<>(containerInstances.values());
-    }
-
-    @Override
-    public void removeInstance(String containerId) {
+    public void start() {
         try {
-            docker.removeContainer(containerId);
+            docker.startContainer(containerInstanceInfo.getId());
         } catch (DockerException ex) {
-            Logger.getLogger(DockerContainerProvider.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(DockerContainerProviderInstance.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
-            Logger.getLogger(DockerContainerProvider.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(DockerContainerProviderInstance.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
 
-    public DockerClient getDocker() {
-        return docker;
     }
 
     @Override
-    public ContainerInstance getInstanceById(String id) {
-        return containerInstances.get(id);
+    public void stop() {
+
+        try {
+            docker.stopContainer(containerInstanceInfo.getId(), 0);
+        } catch (DockerException ex) {
+            Logger.getLogger(DockerContainerProviderInstance.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(DockerContainerProviderInstance.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
+
+    @Override
+    public void restart() {
+
+        try {
+            docker.restartContainer(containerInstanceInfo.getId());
+        } catch (DockerException ex) {
+            Logger.getLogger(DockerContainerProviderInstance.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(DockerContainerProviderInstance.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
     }
 
 }

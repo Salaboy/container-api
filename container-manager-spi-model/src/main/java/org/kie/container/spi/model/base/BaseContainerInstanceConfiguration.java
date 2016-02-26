@@ -7,17 +7,17 @@ package org.kie.container.spi.model.base;
 
 import java.util.Map;
 import javax.xml.bind.annotation.XmlRootElement;
-import org.kie.container.spi.model.ContainerConfiguration;
+import org.kie.container.spi.model.ContainerInstanceConfiguration;
 
 /**
  *
  * @author salaboy
  */
 @XmlRootElement
-public class BaseContainerConfiguration implements ContainerConfiguration{
+public class BaseContainerInstanceConfiguration implements ContainerInstanceConfiguration {
 
     private Map<String, String> properties;
-    
+
     @Override
     public Map<String, String> getProperties() {
         return properties;
@@ -28,7 +28,4 @@ public class BaseContainerConfiguration implements ContainerConfiguration{
         this.properties = props;
     }
 
-  
-    
-    
 }

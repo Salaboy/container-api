@@ -5,8 +5,8 @@
  */
 package org.kie.container.was.provider;
 
-import org.kie.container.spi.model.ContainerConfiguration;
 import org.kie.container.spi.model.base.BaseContainer;
+import org.kie.container.spi.model.ContainerInstanceConfiguration;
 
 
 /**
@@ -15,7 +15,7 @@ import org.kie.container.spi.model.base.BaseContainer;
  */
 public class WASContainer extends BaseContainer {
 
-    public WASContainer(String name, ContainerConfiguration conf) {
+    public WASContainer(String name, ContainerInstanceConfiguration conf) {
         super(name, conf);
         System.out.println(" >>> New WASContainer Instance: "+ this.hashCode());
     }

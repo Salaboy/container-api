@@ -6,18 +6,13 @@
 package org.kie.container.was.provider;
 
 import com.ibm.websphere.management.application.AppNotification;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
 import org.drools.was.util.core.WASContainerManager;
 import org.drools.was.util.core.listeners.BaseNotificationListener;
-import org.kie.container.spi.model.Container;
-import org.kie.container.spi.model.ContainerInstance;
-import org.kie.container.spi.model.providers.ContainerProviderConfiguration;
+import org.kie.container.spi.model.ContainerInstanceConfiguration;
+import org.kie.container.spi.model.ContainerInstanceInfo;
 import org.kie.container.spi.model.providers.base.BaseContainerProviderInstance;
+import org.kie.container.spi.model.providers.info.ContainerInstanceInfoImpl;
+import org.kie.container.spi.model.providers.info.ContainerProviderInstanceInfo;
 
 /**
  *
@@ -25,63 +20,50 @@ import org.kie.container.spi.model.providers.base.BaseContainerProviderInstance;
  */
 public class WASContainerProviderInstance extends BaseContainerProviderInstance {
 
-    private Map<String, ContainerInstance> containerInstances = new HashMap<>();
-
     private WASContainerManager containerClient;
 
-    @Inject
-    private Instance<WASContainerInstance> instance;
-    
 
-    public WASContainerProviderInstance() {
-        super("WAS Client Provider");
+    public WASContainerProviderInstance(ContainerProviderInstanceInfo cpi, ContainerInstanceConfiguration config) {
+        super("WAS Client Provider", "was");
         System.out.println(">>> New WASContainerProviderInstance Instance... " + this.hashCode());
-
-    }
-
-    @Override
-    public void configure(ContainerProviderConfiguration config) {
+        
         this.config = config;
-        String host = config.getProperties().get("host");
-        String port = config.getProperties().get("port");
+        this.containerProviderInstanceInfo = cpi;
+        String host = cpi.getConfig().getProperties().get("host");
+        String port = cpi.getConfig().getProperties().get("port");
+        
         containerClient = new WASContainerManager(host, port);
         containerClient.connect();
+
     }
 
-    
     @Override
-    public ContainerInstance createInstance(Container c) {
-        ContainerInstance ci = instance.get();
-        ci.setProvider(this);
-        String appName = c.getConfiguration().getProperties().get("name");
-        ci.getInfo().setName(appName);
-        String earPath = c.getConfiguration().getProperties().get("earPath");
-        String target = c.getConfiguration().getProperties().get("target");
+    public ContainerInstanceInfo create() {
+
+        String appName = config.getProperties().get("name");
+        String earPath = config.getProperties().get("earPath");
+        String target = config.getProperties().get("target");
         containerClient.addNotificationListener(new BaseNotificationListener("Install: " + appName, AppNotification.INSTALL));
         containerClient.deployApp(earPath, appName, target);
 
-        ci.getInfo().setId(appName); //use the app name as ID :(
-        containerInstances.put(appName, ci);
+        containerInstanceInfo = new ContainerInstanceInfoImpl(appName, appName, config);
 
-        return ci;
+        return containerInstanceInfo;
     }
 
     @Override
-    public List<ContainerInstance> getAllInstances() {
-        return new ArrayList<>(containerInstances.values());
+    public void start() {
+        containerClient.startApp(containerInstanceInfo.getId());
     }
 
     @Override
-    public void removeInstance(String containerId) {
-        containerClient.undeployApp(containerId);
-    }
-
-    public WASContainerManager getWASClient() {
-        return containerClient;
+    public void stop() {
+        containerClient.stopApp(containerInstanceInfo.getId());
     }
 
     @Override
-    public ContainerInstance getInstanceById(String id) {
-        return containerInstances.get(id);
+    public void restart() {
+        containerClient.restartApp(containerInstanceInfo.getId());
     }
+
 }
