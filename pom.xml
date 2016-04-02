@@ -14,8 +14,15 @@
         <module>container-manager-cluster</module>
         <!-- utilities --> 
         <module>was-util-core</module>
-        
+        <module>container-manager-kubernetes-provider</module>
+        <module>kie-grid</module>
+        <module>kie-grid-impl</module>
+        <module>kie-grid-services</module>
+        <module>kie-grid-services-service-example</module>
+        <module>kie-grid-services-client-example</module>
+        <module>kie-grid-services-example-base</module>
     </modules>
+
     
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

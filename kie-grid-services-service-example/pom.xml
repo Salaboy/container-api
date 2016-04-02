@@ -1,50 +1,53 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-   
-   <parent>
+    <parent>
         <groupId>org.kie</groupId>
         <artifactId>container-manager-spi</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-    <artifactId>container-manager-services</artifactId>
+    <artifactId>kie-grid-services-service-example</artifactId>
     <packaging>jar</packaging>
-
-    <name>Container Manager :: Services</name>
-    <url>http://salaboy.com</url>
-
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
         <docker.from>jboss/base-jdk:8</docker.from> 
         <docker.maven.plugin.version>0.13.8</docker.maven.plugin.version>
         <docker.assemblyDescriptorRef>artifact</docker.assemblyDescriptorRef>
-        <docker.image>salaboy/container-manager-services:latest</docker.image>
+        <docker.image>salaboy/kie-grid-drools-service-example:latest</docker.image>
     </properties>
-    
-
     <dependencies>
         <dependency>
             <groupId>org.kie</groupId>
-            <artifactId>container-manager-spi-model</artifactId>
+            <artifactId>kie-grid</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+             <groupId>org.kie</groupId>
+            <artifactId>kie-grid-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.kie</groupId>
-            <artifactId>container-manager-cluster</artifactId>
+            <artifactId>kie-grid-services-example-base</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        
+<!--        <dependency>
+            <groupId>org.kie</groupId>
+            <artifactId>kie-api</artifactId>
+            <version>6.3.0.Final</version>
         </dependency>
         <dependency>
-            <groupId>org.kie</groupId>
-            <artifactId>container-manager-docker-provider</artifactId>
-            <version>${project.version}</version>
+             <groupId>org.drools</groupId>
+            <artifactId>drools-core</artifactId>
+            <version>6.3.0.Final</version>
         </dependency>
         <dependency>
-            <groupId>org.kie</groupId>
-            <artifactId>container-manager-was-provider</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+             <groupId>org.drools</groupId>
+            <artifactId>drools-compiler</artifactId>
+            <version>6.3.0.Final</version>
+        </dependency>-->
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
@@ -63,14 +66,6 @@
             <artifactId>jaxrs-weld</artifactId>
             <version>1.0.0.Alpha6</version>
         </dependency>
-<!--        <dependency>
-            <groupId>org.wildfly.swarm</groupId>
-            <artifactId>keycloak</artifactId>
-            <version>1.0.0.Alpha6</version>
-            
-        </dependency>-->
-        
-        
     </dependencies>
     <build>
         <plugins>
@@ -88,9 +83,9 @@
                 <artifactId>wildfly-swarm-plugin</artifactId>
                 <version>1.0.0.Alpha6</version>
                 <configuration>
-                    <mainClass>org.kie.container.services.App</mainClass>
+                    <mainClass>org.kie.grid.drools.service.App</mainClass>
                     <properties>
-                        <swarm.port.offset>2</swarm.port.offset>
+                        <swarm.port.offset>4</swarm.port.offset>
                     </properties>
                 </configuration>
                 <executions>
@@ -119,7 +114,7 @@
                                     <exec>
                                         <arg>java</arg>
                                         <arg>-jar</arg>
-                                        <arg>/opt/wildfly-swarm/container-manager-services.jar</arg>
+                                        <arg>/opt/wildfly-swarm/kie-grid-drools-services.jar</arg>
                                        
                                     </exec>
                                 </entryPoint>
@@ -129,9 +124,9 @@
                                             <dependencySet>
                                                 <useProjectAttachments>true</useProjectAttachments>
                                                 <includes>
-                                                    <include>org.kie:container-manager-services:jar:swarm</include>
+                                                    <include>org.kie:kie-grid-drools-services:jar:swarm</include>
                                                 </includes>
-                                                <outputFileNameMapping>container-manager-services.jar</outputFileNameMapping>
+                                                <outputFileNameMapping>kie-grid-drools-services.jar</outputFileNameMapping>
                                             </dependencySet>
                                         </dependencySets>
                                         <fileSets>
@@ -166,4 +161,5 @@
             </plugin>
         </plugins>
     </build>
+    <name>kie-grid-services-service-example</name>
 </project>

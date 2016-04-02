@@ -1,0 +1,9 @@
+package org.drools.example;
+import  org.kie.grid.drools.service.endpoint.impl.info.*;
+
+rule "My First Drools Rule"
+    when
+        $o: CommandInfo()
+    then
+        System.out.println(" >>> Rule Fired for Object: "+$o.toString());
+end
